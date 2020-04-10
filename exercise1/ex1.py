@@ -26,7 +26,7 @@ class EnergyBalanceModel(Model):
 
 
 class ExplicitEulerMethodSimulation:
-    def __init__(self,s_time,e_time,steps):
+    def __init__(self,s_time,e_time,steps, model):
         self.simulation_output = pd.DataFrame()
 
         self.start_time = s_time
@@ -38,27 +38,30 @@ class ExplicitEulerMethodSimulation:
         self.simulation_output['time'] = self.time_array
         self.simulation_output = self.simulation_output.set_index(['time'])
 
-        self.model = EnergyBalanceModel()
+        self.model = model if isinstance(model,Model) else None
 
     def simulation_step(self, temp, time):
         new_temp = temp + (self.time_step * self.model.model_equation(temp, time))
         return new_temp
 
     def run_simulation(self):
-        index = 0
-        temp_initial = self.model.initial_value
-        self.temp_array[index] = temp_initial
-        for time in self.time_array[1:]:
-            prev_value = self.temp_array[index]
-            index += 1
-            self.temp_array[index] = self.simulation_step(prev_value, time)
-        self.simulation_output['temperature'] = self.temp_array
+        if self.model is not None:
+            index = 0
+            temp_initial = self.model.initial_value
+            self.temp_array[index] = temp_initial
+            for time in self.time_array[1:]:
+                prev_value = self.temp_array[index]
+                index += 1
+                self.temp_array[index] = self.simulation_step(prev_value, time)
+            self.simulation_output['temperature'] = self.temp_array
+        else:
+            print('invalid model were given for simulation')
 
     def output_csv(self):
         self.simulation_output.to_csv('output.csv')
 
 
-simulation_model = ExplicitEulerMethodSimulation(s_time=0, e_time=1000, steps=1000)
+simulation_model = ExplicitEulerMethodSimulation(s_time=0, e_time=1000, steps=1000, model=EnergyBalanceModel())
 simulation_model.run_simulation()
 print(simulation_model.simulation_output.head(5))
 
