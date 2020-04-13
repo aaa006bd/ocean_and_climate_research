@@ -38,7 +38,7 @@ class ExplicitEulerMethodSimulation:
         self.simulation_output['time'] = self.time_array
         self.simulation_output = self.simulation_output.set_index(['time'])
 
-        self.model = model if isinstance(model,Model) else None
+        self.model = model if isinstance(model, Model) else None
 
     def simulation_step(self, temp, time):
         new_temp = temp + (self.time_step * self.model.model_equation(temp, time))
@@ -53,7 +53,7 @@ class ExplicitEulerMethodSimulation:
                 prev_value = self.temp_array[index]
                 index += 1
                 self.temp_array[index] = self.simulation_step(prev_value, time)
-            self.simulation_output['temperature'] = self.temp_array
+            self.simulation_output['output'] = self.temp_array
         else:
             print('invalid model were given for simulation')
 
@@ -61,8 +61,8 @@ class ExplicitEulerMethodSimulation:
         self.simulation_output.to_csv('output.csv')
 
 
-simulation_model = ExplicitEulerMethodSimulation(s_time=0, e_time=1000, steps=1000, model=EnergyBalanceModel())
-simulation_model.run_simulation()
-print(simulation_model.simulation_output.head(5))
+simulator = ExplicitEulerMethodSimulation(s_time=0, e_time=1000, steps=1000, model=EnergyBalanceModel())
+simulator.run_simulation()
+print(simulator.simulation_output.head(5))
 
-simulation_model.output_csv()
+simulator.output_csv()
